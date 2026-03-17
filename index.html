@@ -10,7 +10,6 @@ body {
     margin: 20px;
     background: #f4f4f4;
 }
-
 .flex-container {
     display: flex;
     justify-content: center;
@@ -18,27 +17,22 @@ body {
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
-
 .panel {
     margin: 10px 20px;
 }
-
 input, button {
     padding: 10px;
     font-size: 18px;
     margin: 5px;
 }
-
 #board {
     margin-top: 20px;
 }
-
 .row {
     display: flex;
     justify-content: center;
     margin: 5px;
 }
-
 .box {
     width: 50px;
     height: 50px;
@@ -52,32 +46,27 @@ input, button {
     background: white;
     transition: transform 0.3s, background 0.3s, color 0.3s;
 }
-
 .green {
     background: #6aaa64;
     color: white;
     border: 2px solid #6aaa64;
 }
-
 .yellow {
     background: #c9b458;
     color: white;
     border: 2px solid #c9b458;
 }
-
 .gray {
     background: #787c7e;
     color: white;
     border: 2px solid #787c7e;
 }
-
 .keyboard {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     margin-top: 20px;
 }
-
 .key {
     width: 40px;
     height: 50px;
@@ -93,11 +82,9 @@ input, button {
     user-select: none;
     transition: background 0.3s;
 }
-
 .key.green { background: #6aaa64; color: white; border: none; }
 .key.yellow { background: #c9b458; color: white; border: none; }
 .key.gray { background: #787c7e; color: white; border: none; }
-
 @media (max-width: 600px) {
     .box { width: 40px; height: 40px; font-size: 24px; }
     .key { width: 30px; height: 40px; font-size: 14px; }
@@ -136,6 +123,11 @@ function setWord() {
     }
     wordLength = secret.length;
     document.getElementById("secretWord").value = "";
+
+    // Reset board and keyboard each time a new word is set
+    document.getElementById("board").innerHTML = "";
+    document.getElementById("keyboard").innerHTML = "";
+
     alert(`Secret word set! Length: ${wordLength}. Start guessing.`);
     createKeyboard();
 }
@@ -174,9 +166,11 @@ function checkWord() {
     let secretArray = secret.split("");
     let result = Array(wordLength).fill("gray");
 
+    // First pass: green
     for (let i = 0; i < wordLength; i++) {
         if (guess[i] === secret[i]) { result[i] = "green"; secretArray[i] = null; }
     }
+    // Second pass: yellow
     for (let i = 0; i < wordLength; i++) {
         if (result[i] === "gray") {
             let index = secretArray.indexOf(guess[i]);
@@ -184,6 +178,7 @@ function checkWord() {
         }
     }
 
+    // Display boxes with animation
     for (let i = 0; i < wordLength; i++) {
         let box = document.createElement("div");
         box.className = "box";
