@@ -44,6 +44,11 @@ input, button {
     height: 50px;
     background: white;
     transition: transform 0.3s, background 0.3s, color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 24px;
 }
 
 .green {
@@ -78,95 +83,86 @@ input, button {
     transition: background 0.3s;
 }
 
-.key.green {
-    background: #6aaa64;
-    color: white;
-    border: none;
-}
-
-.key.yellow {
-    background: #c9b458;
-    color: white;
-    border: none;
-}
-
-.key.gray {
-    background: #787c7e;
-    color: white;
-    border: none;
-}
+.key.green { background: #6aaa64; color: white; border: none; }
+.key.yellow { background: #c9b458; color: white; border: none; }
+.key.gray { background: #787c7e; color: white; border: none; }
 
 @media (max-width: 600px) {
-    .box {
-        width: 40px;
-        height: 40px;
-        font-size: 24px;
-    }
-
-    .key {
-        width: 30px;
-        height: 40px;
-        font-size: 14px;
-    }
+    .box { width: 40px; height: 40px; font-size: 24px; }
+    .key { width: 30px; height: 40px; font-size: 14px; }
 }
 </style>
 </head>
-
 <body>
 
+<h1>Wordle Game - Any Length</h1>
+
+<div class="panel">
+    <input type="text" id="guess" placeholder="Type your guess" autofocus>
+    <button onclick="checkWord()">Check</button>
+</div>
+
+<div id="board"></div>
+
 <script>
-wordLength = secret.length;
-document.getElementById("secretWord").value = "";
+// preset secret word
+let secret = "apple"; // you can change this
+let wordLength = secret.length;
 
-// Reset board and keyboard each time a new word is set
-document.getElementById("board").innerHTML = "";
-document.getElementById("keyboard").innerHTML = "";
-
-alert(`Secret word set! Length: ${wordLength}. Start guessing.`);
-createKeyboard();
-
-let secretArray = secret.split("");
-let result = Array(wordLength).fill("gray");
-
-// First pass: green
-for (let i = 0; i < wordLength; i++) {
-    if (guess[i] === secret[i]) {
-        result[i] = "green";
-        secretArray[i] = null;
-    }
+function updateKeyboard(letter, color) {
+    // optional: add keyboard color update logic here
 }
 
-// Second pass: yellow
-for (let i = 0; i < wordLength; i++) {
-    if (result[i] === "gray") {
-        let index = secretArray.indexOf(guess[i]);
-        if (index !== -1) {
-            result[i] = "yellow";
-            secretArray[index] = null;
+function checkWord() {
+    let guessInput = document.getElementById("guess");
+    let guess = guessInput.value.toLowerCase();
+    if (!guess || guess.length !== wordLength) return;
+
+    let row = document.createElement("div");
+    row.className = "row";
+
+    let secretArray = secret.split("");
+    let result = Array(wordLength).fill("gray");
+
+    // First pass: green
+    for (let i = 0; i < wordLength; i++) {
+        if (guess[i] === secret[i]) { 
+            result[i] = "green"; 
+            secretArray[i] = null; 
         }
     }
+
+    // Second pass: yellow
+    for (let i = 0; i < wordLength; i++) {
+        if (result[i] === "gray") {
+            let index = secretArray.indexOf(guess[i]);
+            if (index !== -1) { 
+                result[i] = "yellow"; 
+                secretArray[index] = null; 
+            }
+        }
+    }
+
+    // Display boxes with animation
+    for (let i = 0; i < wordLength; i++) {
+        let box = document.createElement("div");
+        box.className = "box";
+        box.textContent = guess[i].toUpperCase();
+        row.appendChild(box);
+        setTimeout(() => { 
+            box.classList.add(result[i]); 
+            updateKeyboard(guess[i], result[i]); 
+        }, i * 200);
+    }
+
+    document.getElementById("board").appendChild(row);
+
+    if (guess === secret) { 
+        setTimeout(() => alert("🎉 Correct!"), 200 * wordLength + 100); 
+    }
+
+    guessInput.value = "";
 }
-
-// Display boxes with animation
-for (let i = 0; i < wordLength; i++) {
-    let box = document.createElement("div");
-    box.className = "box";
-    box.textContent = guess[i].toUpperCase();
-    row.appendChild(box);
-
-    setTimeout(() => {
-        box.classList.add(result[i]);
-        updateKeyboard(guess[i], result[i]);
-    }, i * 200);
-}
-
-document.getElementById("board").appendChild(row);
-
-if (guess === secret) {
-    setTimeout(() => alert("🎉 Correct!"), 200 * wordLength + 100);
-}
-
-document.getElementById("guess").value = "";
 
 document.getElementById("guess").addEventListener("keypress", function(event) {
     if (event.key === "Enter") checkWord();
